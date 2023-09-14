@@ -1,7 +1,7 @@
 // Saves popular dog names in a trie
 // https://www.dailypaws.com/dogs-puppies/dog-names/common-dog-names
 
-#include <cs50.h>
+// #include <cs50.h>
 #include <ctype.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     }
 
     // Add words to the trie
-    while (fscanf(infile, "%s", name) == 1) 
+    while (fscanf(infile, "%s", name) == 1)
     {
         node *cursor = root;
 
@@ -89,28 +89,53 @@ int main(int argc, char *argv[])
         cursor->is_word = true;
     }
 
-    if (check(get_string("Check word: ")))
-    {
-        printf("Found!\n");
-    }
-    else
-    {
-        printf("Not Found.\n");
+    // Prompt the user to write and search for a dog name
+    char user_input[100];
+    printf("Check word: ");
+    if (fgets(user_input, sizeof(user_input), stdin) != NULL) {
+        user_input[strcspn(user_input, "\n")] = '\0'; // Remove the newline character
+        if (check(user_input)) {
+            printf("Found!\n");
+        } else {
+            printf("Not Found.\n");
+        }
     }
 
+    // Free memory
     if (!unload())
     {
         printf("Problem freeing memory!\n");
         return 1;
     }
-
+    
     fclose(infile);
+
+    return 0;
 }
 
-// TODO: Complete the check function, return true if found, false if not found
-bool check(char* word)
+// Check function, return true if found, false if not found
+bool check(char *word)
 {
-    return false;
+    // Set the cursor to the root node
+    node *cursor = root;
+    int index;
+
+    // Iterate through every single letter to find index
+    for (int i = 0, len = strlen(word); i < len; i++)
+    {
+        index = tolower(word[i]) - 'a';
+        if (cursor->children[index] != NULL)
+        {
+            cursor = cursor->children[index];
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    // Check if current TrieNode is the end of a word
+    return cursor->is_word;
 }
 
 // Unload trie from memory
@@ -123,9 +148,9 @@ bool unload(void)
     return true;
 }
 
-void unloader(node* current)
+void unloader(node *current)
 {
-    
+
     // Iterate over all the children to see if they point to anything and go
     // there if they do point
     for (int i = 0; i < SIZE_OF_ALPHABET; i++)
